@@ -1,135 +1,202 @@
 const express    = require('express');
 const bodyParser = require('body-parser');
-const mongoose   = require('mongoose');
+const _          = require('lodash');
+const {ObjectID} = require('mongodb');
 
 const app = express();
 
+app.use(express.static(__dirname + '/client'));
 app.use(bodyParser.json());
 
-Items = require('./models/items');
-Users = require('./models/users');
-//Connect to mongoose
-mongoose.connect('localhost/store');
-var db = mongoose.connection;
+const {Item}         = require('./models/items');
+const {User}         = require('./models/users');
+const {Review}       = require('./models/reviews');
+const {authenticate} = require('./middleware/authenticate')
+const {mongoose}     = require('./db/mongoose');
 
-app.get('/', function(req, res) {
-    res.send('Hello World');
-});
 
 /*
 /
-/ ************** ITEMS API CONTROLLER START **************
+/ ************** ITEMS API ROUTER START **************
 /
 */
 
+//Handling request adding item into database
+app.post('/api/items', (req, res) => {
+
+  var body = _.pick(req.body, ['title', 'description', 'img_url']);
+  var item = new Item(body);
+
+   item.save().then((doc) => {
+     res.json(doc);
+   }, (e) => {
+     res.status(400).send(e);
+   });
+});
+
 //Handling get req for items
-app.get('/api/items', function(req, res) {
-    Items.getItems(function(err, items) {
-        if (err) {
-            throw err;
-        }
-        res.json(items);
-    });
+app.get('/api/items', (req, res) => {
+   Item.find().then((items) => {
+     res.send({items});
+   }, (e) => {
+     res.status(400).send(e);
+   });
 });
 
 //Handling get req for single item
-app.get('/api/items/:_id', function(req, res) {
-    Items.getItemById(req.params._id, function(err, item) {
-        if (err) {
-            throw err;
-        }
-        res.json(item);
-    });
-});
+app.get('/api/items/:id', (req, res) => {
+   var id = req.params.id;
 
-//Handling request adding item into database
-app.post('/api/items', function(req, res) {
-    var item = req.body;
-    Items.addItem(item, function(err, item) {
-        if (err) {
-            throw err;
-        }
-        res.json(item);
-    });
-});
+     if (!ObjectID.isValid(id)) {
+       return res.status(404).send();
+     }
 
-// Handling update request for item
-app.put('/api/items/:_id', function(req, res) {
-    var id = req.params._id;
-    var item = req.body;
-    Items.updateItem(id, item, {}, function(err, item) {
-        if (err) {
-            throw err;
-        }
-        res.json(item);
-    });
+     Item.findById(id).then((item) =>{
+       if(!item){
+         return res.status(404).send();
+       }
+       res.send({item});
+     }).catch((e) => {
+       res.status(400).send();
+     });
+
 });
 
 // Handling delete request for item
-app.delete('/api/items/:_id', function(req, res) {
-    var id = req.params._id;
-    Items.deleteItem(id, function(err, item) {
-        if (err) {
-            throw err;
+app.delete('/api/items/:id', (req, res) => {
+    var id = req.params.id;
+
+      if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+      }
+
+      Item.findByIdAndRemove(id).then((item) =>{
+        if (!item) {
+          return res.status(404).send();
         }
-        res.json(item);
-    });
+        res.send(item);
+      }).catch((e) => {
+        res.status(400).send();
+      });
+
 });
 
 /*
 /
-/ ************** ITEM API CONTROLLER END **************
+/ ************** ITEM API ROUTER END **************
 /
 */
 
 /*
 /
-/ ************** USER API CONTROLLER START **************
+/ ************** USER API ROUTER START **************
 /
 */
 
-app.get('/api/users', function(req, res) {
-    Users.getUsers(function(err, users) {
-        if (err) {
-            throw err;
-        }
-        res.json(users);
+// POST /api/users
+app.post('/api/register', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password', 'username']);
+    var user = new User(body);
+
+    user.save().then(() => {
+        res.status(200).send();
+    }).catch((e) => {
+        res.status(400).send(e);
+    })
+});
+
+app.get('/api/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+// POST users/login {mail, pass}
+app.post('/api/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+      return user.generateAuthToken().then((token) => {
+        res.header('x-auth', token).send(user);
+      });
+    }).catch((e) => {
+      res.status(400).send();
     });
 });
 
-//Handling get req for single item
-app.get('/api/users/:_id', function(req, res) {
-    Users.getUserById(req.params._id, function(err, user) {
-        if (err) {
-            throw err;
-        }
-        res.json(user);
-    });
+// Route for logout (deleting token)
+app.delete('/api/logout', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send();
+  }, () => {
+    res.status(400).send();
+  });
 });
 
-//Handling request adding item into database
-app.post('/api/users', function(req, res) {
-    var user = req.body;
-    Users.addUser(user, function(err, user) {
-        if (err) {
-            throw err;
-        }
-        res.json(user);
-    });
+/*
+/
+/ ************** User API ROUTER END **************
+/
+*/
+
+
+/*
+/
+/ ************** Review API ROUTER START **************
+/
+*/
+
+// POST new review
+app.post('/api/reviews', (req, res) => {
+
+   var review  = new Review({
+     product: req.body.product,
+     rating: req.body.rating,
+     text: req.body.text,
+     created_by:{
+       user_id: req.body.created_by.user_id,
+       username: req.body.created_by.username
+     }
+   });
+
+   review.save().then((doc) => {
+     res.json(doc);
+   }, (e) => {
+     res.status(400).send(e);
+   });
 });
 
-// Handling delete request for user
-app.delete('/api/users/:_id', function(req, res) {
-    var id = req.params._id;
-    Users.deleteUser(id, function(err, user) {
-        if (err) {
-            throw err;
-        }
-        res.json(user);
-    });
+// GET all existing reviews (not product specified)
+app.get('/api/reviews', (req, res) => {
+   Review.find().then((review) => {
+     res.send(review);
+   }, (e) => {
+     res.status(400).send(e);
+   });
 });
 
+// GET one particular review
+app.get('/api/reviews/:product', (req, res) => {
+   var productid = req.params.product;
 
+     if (!ObjectID.isValid(productid)) {
+       return res.status(404).send();
+     }
+
+     Review.find({'product':productid}).then((review) =>{
+       if(!review){
+         return res.status(404).send();
+       }
+       res.send(review);
+     }).catch((e) => {
+       res.status(400).send();
+     });
+
+});
+
+/*
+/
+/ ************** Review API ROUTER END **************
+/
+*/
 
 app.listen(1337);
 console.log('Yohoho and the bottle of port:1337');

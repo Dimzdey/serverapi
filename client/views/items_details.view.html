@@ -1,0 +1,81 @@
+<div>
+    <md-button class="md-raised md-primary" ng-click="$back()">back</md-button>
+</div>
+<md-content layout="row" layout-xs="column" layout-wrap ng-init="getItem()">
+
+    <div flex flex-gt-sm="33">
+
+        <md-card>
+
+            <div md-colors="{background: 'indigo'}">
+                <h4 class="edit-page-label">Preview</h4>
+            </div>
+
+            <img ng-src="{{item.item.img_url}}" class="md-card-image">
+
+            <md-card-content>
+                <h2>{{item.item.title}}</h2>
+                <p ng-bind-html="item.item.description | nl2br"></p>
+            </md-card-content>
+
+        </md-card>
+
+    </div>
+
+    <div flex flex-gt-sm="66">
+
+        <md-card>
+
+            <div md-colors="{background: 'indigo'}">
+                <h4 class="edit-page-label">Reviews</h4>
+            </div>
+
+            <md-card-content>
+              <h2 ng-hide="checkReviews()">No Reviews Yet</h2>
+
+                <md-content ng-show="checkReviews()">
+                    <md-list>
+                        <md-list-item class="md-3-line" ng-repeat="review in revievs">
+                            <div class="md-list-item-text">
+                                <ng-rate-it style="margin-top: 20px;" ng-model="review.rating" read-only="true"></ng-rate-it>
+                                <p ><strong ng-bind-html="review.text | nl2br"></strong></p>
+                                <p style="margin: 20px 0 20px 0;">Posted by: {{review.created_by.username}}</p>
+                            </div>
+                            <md-divider ng-if="!$last"></md-divider>
+                        </md-list-item>
+                    </md-list>
+                </md-content>
+                <br>
+                <form name="review" ng-submit="updateItem()" ng-show="user">
+
+                    <md-input-container class="md-block">
+                        <label>Place your rating</label>
+                        <md-select required=""  md-no-asterisk="" name="rateSelector" ng-model="selectedStars">
+                            <md-option ng-value="star" ng-repeat="star in stars">
+                                <ng-rate-it ng-model="star" read-only="true"></ng-rate-it>
+                            </md-option>
+                        </md-select>
+                        <div class="errors" ng-messages="review.rateSelector.$error">
+                            <div ng-message="required">Required</div>
+                        </div>
+                    </md-input-container>
+
+                    <md-input-container class="md-block">
+                        <label>Post your review</label>
+                        <textarea required="" md-no-asterisk="" name="title" ng-model="reviewText"></textarea>
+                        <div ng-messages="review.title.$error">
+                            <div ng-message="required">This is required.</div>
+                        </div>
+                    </md-input-container>
+
+                    <div>
+                        <md-button type="submit" ng-click="postReview()">Submit</md-button>
+                    </div>
+                </form>
+
+            </md-card-content>
+
+        </md-card>
+    </div>
+
+</md-content>

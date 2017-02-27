@@ -1,0 +1,45 @@
+<div>
+    <md-button  class="md-raised md-primary" ng-click="$back()">back</md-button>
+</div>
+
+<md-card>
+
+    <div md-colors="{background: 'indigo'}" >
+        <h4 class="edit-page-label">ADD NEW ITEM</h4>
+    </div>
+
+    <md-card-content>
+
+        <form name="addForm">
+
+            <md-input-container class="md-block">
+                <label>Title</label>
+                <input required="" md-no-asterisk="" name="title" ng-model="item.title">
+                <div ng-messages="addForm.title.$error">
+                    <div ng-message="required">This is required.</div>
+                </div>
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label>Description</label>
+                <textarea required="" md-no-asterisk="" name="description" ng-model="item.description"></textarea>
+                <div ng-messages="addForm.description.$error">
+                    <div ng-message="required">This is required.</div>
+                </div>
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label>Image URL</label>
+                <input required="" md-no-asterisk="" name="imageURL" ng-model="item.img_url">
+                <div ng-messages="addForm.imageURL.$error">
+                    <div ng-message="required">This is required.</div>
+                </div>
+            </md-input-container>
+
+            <div>
+                <md-button type="submit" ng-click="addItem()" data-ng-disabled="checkInput()">Submit</md-button>
+            </div>
+
+        </form>
+    </md-card-content>
+</md-card>

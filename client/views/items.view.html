@@ -1,0 +1,18 @@
+<div flex-xs="" flex-gt-xs="33" layout="row" layout-wrap layout-align="center">
+
+    <md-card style="width: 300px;" md-theme="default" ng-repeat="item in items">
+        <div class="card-image">
+          <img ng-src="{{item.img_url}}" class="md-card-image"/>
+        </div>
+
+        <md-card-title class="item-title">
+            <h2 >{{item.title.trunc(17)}}</h2>
+        </md-card-title>
+
+        <md-card-actions layout="row" layout-align="space-around end">
+            <md-button href="#!/items/details/{{item._id}}" class="md-raised md-primary" style="width: 100%">Details</md-button>
+        </md-card-actions>
+
+    </md-card>
+
+</div>

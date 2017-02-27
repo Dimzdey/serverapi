@@ -1,0 +1,33 @@
+.card-image > * {
+    height: 450px;
+    width: 300px;
+    width:
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+
+.item_card {
+    width: 300px;
+}
+
+.edit-page-label {
+    margin-left: 20px;
+}
+
+md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar {
+    background: #6441a5;
+    color: #6441a5;
+}
+
+.item-title {
+    position: relative;
+    bottom: 3%;
+}
+
+.md-card-image {
+  margin: auto;
+  max-height: 450px;
+  max-width: 300px;
+}

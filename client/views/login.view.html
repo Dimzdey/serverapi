@@ -1,0 +1,90 @@
+<div>
+    <md-button class="md-raised md-primary" ng-click="$back()">back</md-button>
+</div>
+
+
+
+<div flex-xs="" flex-gt-xs="33" layout="row" layout-wrap layout-align="center">
+
+    <md-card style="width: 600px;" md-theme="default">
+
+        <md-card-content>
+
+            <md-tabs md-dynamic-height md-stretch-tabs="always">
+
+                <md-tab label="LOGIN">
+
+                    <form name="loginForm" ng-submit="login()">
+
+                        <md-input-container class="md-block">
+                            <label>E-mail</label>
+                            <input required="" md-no-asterisk="" name="mail" ng-model="userCredentials.email" type="email">
+                            <div ng-messages="loginForm.mail.$error">
+                                <div ng-message="required">Please enter e-mail adress.</div>
+                            </div>
+                        </md-input-container>
+
+                        <md-input-container class="md-block">
+                            <label>Password</label>
+                            <input required="" md-no-asterisk="" name="password" ng-model="userCredentials.password" type="password">
+                            <div ng-messages="loginForm.password.$error">
+                                <div ng-message="required">Please enter password.</div>
+                            </div>
+                        </md-input-container>
+
+                        <div>
+                            <md-button type="submit" style="width: 100%">Login</md-button>
+                        </div>
+
+                        <div ng-show="badCredentials">
+                          <p md-colors="{color:'warn'}">Wrong password or e-mail! Please check Your input.</p>
+                        </div>
+
+                    </form>
+                </md-tab>
+
+                <md-tab label="REGISTER">
+                    <form name="registerForm" ng-submit="register()">
+
+                      <md-input-container class="md-block" >
+                          <label>Name</label>
+                          <input required="" md-no-asterisk="" name="username" ng-model="userCredentials.username">
+                          <div ng-messages="registerForm.username.$error">
+                              <div ng-message="required">Please enter Your name.</div>
+                          </div>
+                      </md-input-container>
+
+                        <md-input-container class="md-block">
+                            <label>E-mail</label>
+                            <input required="" md-no-asterisk="" name="email" ng-model="userCredentials.email" type="email">
+                            <div ng-messages="registerForm.email.$error">
+                                <div ng-message="required">Please enter e-mail adress.</div>
+                            </div>
+                        </md-input-container>
+
+                        <md-input-container class="md-block">
+                            <label>Password</label>
+                            <input required="" md-no-asterisk="" name="password" type="password" ng-model="userCredentials.password">
+                            <div ng-messages="registerForm.password.$error">
+                                <div ng-message="required">Please enter password.</div>
+                            </div>
+                        </md-input-container>
+
+                        <div>
+                            <md-button type="submit" style="width: 100%">Register</md-button>
+                        </div>
+
+                        <div ng-show="badCredentials">
+                          <p md-colors="{color:'warn'}">This user name or e-mail already exists.</p>
+                        </div>
+
+                    </form>
+                </md-tab>
+
+            </md-tabs>
+
+        </md-card-content>
+
+    </md-card>
+
+</div>
