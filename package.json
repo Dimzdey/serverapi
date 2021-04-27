@@ -13,7 +13,7 @@
     "jsonwebtoken": "^7.3.0",
     "lodash": "^4.17.4",
     "mongoose": "*",
-    "validator": "^6.2.1"
+    "validator": "^13.6.0"
   },
   "author": "Hudym Dmytro",
   "license": "ISC"
